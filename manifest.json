@@ -1,0 +1,144 @@
+{
+    "author": "Niall Bourke",
+    "cite": "SynthSeg: Domain Randomisation for Segmentation of Brain MRI Scans of any Contrast and Resolution, B. Billot, D.N. Greve, O. Puonti, A. Thielscher, K. Van Leemput, B. Fischl, A.V. Dalca, J.E. Iglesias: https://github.com/BBillot/SynthSeg ",
+    "command": "python3 /flywheel/v0/run.py",
+    "config": {
+        "debug": {
+            "default": false,
+            "description": "Log debug messages",
+            "type": "boolean"
+        },
+        "Input Glob Pattern": {
+            "default": "",
+            "description": "Glob pattern (Unix style pathname pattern expansion) that matches filename to be used as inputs. (Default ''). https://en.wikipedia.org/wiki/Glob_(programming).",
+            "type": "string"
+        },
+        "Input Regex": {
+            "default": ".*nii\\.gz",
+            "description": "Regular expression that matches filenames to be used as inputs. (Default '.*nii\\.gz'). https://en.wikipedia.org/wiki/Regular_expression.",
+            "type": "string"
+        },
+        "Input Tags": {
+            "default": "",
+            "description": "Tag(s) that matches files to be used as inputs. When multiple tags are specified, they must be comma separated (e.g. T1template,ANTs)",
+            "type": "string"
+        },
+        "mem_mb": {
+            "description": "Maximum memory to use (MB). Leave blank or set to 0 to use the maximum available in the system.",
+            "optional": true,
+            "type": "integer"
+        },
+        "parc": {
+            "description": "(optional) Whether to perform cortex parcellation.",
+            "optional": true,
+            "type": "boolean"
+        },
+        "QC": {
+            "description": "(optional) Output CSV file with qc scores for all subjects.",
+            "optional": true,
+            "type": "boolean"
+        },
+        "robust": {
+            "description": "(optional) Whether to use robust predictions (slower)",
+            "optional": true,
+            "type": "boolean"
+        },
+        "vol": {
+            "description": "(optional) Output CSV file with volumes for all structures and subjects.",
+            "optional": true,
+            "type": "boolean"
+        },
+        "verbose": {
+            "default": "v",
+            "description": "increases log verbosity for each occurrence, debug level is -vvv",
+            "enum": [
+                "",
+                "v",
+                "vv",
+                "vvv"
+            ],
+            "type": "string"
+        }
+    },
+    "custom": {
+        "analysis-level": "participant",
+        "flywheel": {
+            "classification": {
+                "components": [
+                    "FreeSurfer"
+                ],
+                "keywords": [
+                    "segmentation",
+                    "volume",
+                    "template"
+                ],
+                "modality": [
+                    "MR"
+                ],
+                "type": [
+                    "nifti"
+                ]
+            },
+            "suite": "KCL Apps"
+        },
+        "gear-builder": {
+            "category": "analysis",
+            "image": "flywheel/synthseg:0.0.5-beta"
+        },
+        "kcl-app-binary": "app/main.sh",
+        "kcl-app-modalities": [
+            "anat"
+        ],
+        "license": {
+            "dependencies": [
+                {
+                    "name": "Other",
+                    "url": "/usr/local/freesurfer/license.txt"
+                }
+            ],
+            "main": {
+                "name": "",
+                "url": ""
+            },
+            "non-commercial-use-only": false
+        }
+    },
+    "description": "ANTs based gear that runs antsMultivariateTemplateConstruction2.sh script to generate an isotropic image by co-registering a set of multiplanar input images",
+    "environment": {
+        "CONDA_DIR": "/opt/conda",
+        "FLYWHEEL": "/flywheel/v0",
+        "GPG_KEY": "E3FF2839C048B25C084DEBE9B26995E310250568",
+        "LANG": "C.UTF-8",
+        "PATH": "/usr/local/freesurfer/bin:/usr/local/freesurfer/fsfast/bin:/usr/local/freesurfer/tktools:/usr/local/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+        "PYTHON_GET_PIP_SHA256": "fa6f3fb93cce234cd4e8dd2beb54a51ab9c247653b52855a48dd44e6b21ff28b",
+        "PYTHON_GET_PIP_URL": "https://github.com/pypa/get-pip/raw/c20b0cfd643cd4a19246ccf204e2997af70f6b21/public/get-pip.py",
+        "PYTHON_PIP_VERSION": "21.2.3",
+        "PYTHON_VERSION": "3.8.11",
+        "FREESURFER": "/usr/local/freesurfer",
+        "FREESURFER_HOME": "/usr/local/freesurfer",
+        "container": "oci"
+    },
+    "inputs": {
+        "api-key": {
+            "base": "api-key",
+            "read-only": false
+        },
+        "bidsignore": {
+            "base": "file",
+            "description": "A .bidsignore file to provide to the bids-validator that this gear runs before running the main command.",
+            "optional": true
+        },
+        "input": {
+            "base": "file",
+            "description": "input file (usually isotropic reconstruction)",
+            "optional": false
+        }
+    },
+    "label": "SynthSeg",
+    "license": "MIT",
+    "maintainer": "Niall Bourke <niall.bourke@kcl.ac.uk>",
+    "name": "synthseg",
+    "source": "https://github.com/BBillot/SynthSeg ",
+    "url": "https://surfer.nmr.mgh.harvard.edu/",
+    "version": "0.0.5-beta"
+}

@@ -1,10 +1,8 @@
 import flywheel
-import os
 import json
 import pandas as pd
 from datetime import datetime
 import re
-import subprocess
 
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK

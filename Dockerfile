@@ -18,7 +18,8 @@ RUN yum update -y && \
     yum install -y unzip gzip wget && \
     yum clean all
 
-RUN pip3 install jsonschema
+RUN pip3 install jsonschema && \
+    pip3 install pandas
 
 # setup fs env
 ENV PATH /usr/local/freesurfer/bin:/usr/local/freesurfer/fsfast/bin:/usr/local/freesurfer/tktools:/usr/local/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin

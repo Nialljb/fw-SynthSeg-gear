@@ -94,7 +94,7 @@ def get_demo():
     filePath = '/flywheel/v0/output/vol.csv'
     with open(filePath) as csv_file:
         vols = pd.read_csv(csv_file, index_col=None, header=0) 
-        # data.append(vols)
+        vols = vols.drop('subject', axis=1)
 
     frames = [demo, vols]
     df = pd.concat(frames, axis=1)

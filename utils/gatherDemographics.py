@@ -88,13 +88,17 @@ def get_demo():
     
     # assign values to lists. 
     data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': PatientSex }]  
+    # Creates DataFrame.  
+    demo = pd.DataFrame(data)
+
     filePath = '/flywheel/v0/output/vol.csv'
     with open(filePath) as csv_file:
         vols = pd.read_csv(csv_file, index_col=None, header=0) 
-        data.append(vols)
+        # data.append(vols)
 
-    # Creates DataFrame.  
-    df = pd.DataFrame(data)
+    frames = [demo, vols]
+    df = pd.concat(frames, axis=1)
+
     outdir = ('/flywheel/v0/output/hyperfine_synthseg_volume.csv')
     df.to_csv(outdir)
 

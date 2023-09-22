@@ -3,31 +3,6 @@
     "cite": "SynthSeg: Domain Randomisation for Segmentation of Brain MRI Scans of any Contrast and Resolution, B. Billot, D.N. Greve, O. Puonti, A. Thielscher, K. Van Leemput, B. Fischl, A.V. Dalca, J.E. Iglesias: https://github.com/BBillot/SynthSeg ",
     "command": "python3 /flywheel/v0/run.py",
     "config": {
-        "debug": {
-            "default": false,
-            "description": "Log debug messages",
-            "type": "boolean"
-        },
-        "Input Glob Pattern": {
-            "default": "",
-            "description": "Glob pattern (Unix style pathname pattern expansion) that matches filename to be used as inputs. (Default ''). https://en.wikipedia.org/wiki/Glob_(programming).",
-            "type": "string"
-        },
-        "Input Regex": {
-            "default": ".*nii\\.gz",
-            "description": "Regular expression that matches filenames to be used as inputs. (Default '.*nii\\.gz'). https://en.wikipedia.org/wiki/Regular_expression.",
-            "type": "string"
-        },
-        "Input Tags": {
-            "default": "",
-            "description": "Tag(s) that matches files to be used as inputs. When multiple tags are specified, they must be comma separated (e.g. T1template,ANTs)",
-            "type": "string"
-        },
-        "mem_mb": {
-            "description": "Maximum memory to use (MB). Leave blank or set to 0 to use the maximum available in the system.",
-            "optional": true,
-            "type": "integer"
-        },
         "parc": {
             "default": true,
             "description": "(optional) Whether to perform cortex parcellation.",
@@ -47,17 +22,6 @@
             "default": true,
             "description": "(optional) Output CSV file with volumes for all structures and subjects.",
             "type": "boolean"
-        },
-        "verbose": {
-            "default": "v",
-            "description": "increases log verbosity for each occurrence, debug level is -vvv",
-            "enum": [
-                "",
-                "v",
-                "vv",
-                "vvv"
-            ],
-            "type": "string"
         }
     },
     "custom": {
@@ -83,7 +47,7 @@
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/synthseg:0.0.9"
+            "image": "flywheel/synthseg:0.1.0"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
@@ -123,11 +87,6 @@
             "base": "api-key",
             "read-only": true
         },
-        "bidsignore": {
-            "base": "file",
-            "description": "A .bidsignore file to provide to the bids-validator that this gear runs before running the main command.",
-            "optional": true
-        },
         "input": {
             "base": "file",
             "description": "input file (usually isotropic reconstruction)",
@@ -140,5 +99,5 @@
     "name": "synthseg",
     "source": "https://github.com/BBillot/SynthSeg ",
     "url": "https://surfer.nmr.mgh.harvard.edu/",
-    "version": "0.0.9"
+    "version": "0.1.0"
 }

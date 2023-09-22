@@ -94,7 +94,7 @@ if [[ $config_qc == 'true' ]]; then
   qc=`echo --qc $OUTPUT_DIR/qc.csv`
 fi
 if [[ $config_rob == 'true' ]]; then
-  qc='--robust'
+  robust='--robust'
 fi
 
 # Run synthseg with options

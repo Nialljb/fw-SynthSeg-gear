@@ -29,23 +29,23 @@
             "type": "integer"
         },
         "parc": {
+            "default": true,
             "description": "(optional) Whether to perform cortex parcellation.",
-            "optional": true,
             "type": "boolean"
         },
         "QC": {
+            "default": true,
             "description": "(optional) Output CSV file with qc scores for all subjects.",
-            "optional": true,
             "type": "boolean"
         },
         "robust": {
+            "default": true,
             "description": "(optional) Whether to use robust predictions (slower)",
-            "optional": true,
             "type": "boolean"
         },
         "vol": {
+            "default": true,
             "description": "(optional) Output CSV file with volumes for all structures and subjects.",
-            "optional": true,
             "type": "boolean"
         },
         "verbose": {
@@ -79,11 +79,11 @@
                     "nifti"
                 ]
             },
-            "suite": "KCL Apps"
+            "suite": "UNITY Apps"
         },
         "gear-builder": {
             "category": "analysis",
-            "image": "flywheel/synthseg:0.0.5-beta"
+            "image": "flywheel/synthseg:0.0.9"
         },
         "kcl-app-binary": "app/main.sh",
         "kcl-app-modalities": [
@@ -103,7 +103,7 @@
             "non-commercial-use-only": false
         }
     },
-    "description": "ANTs based gear that runs antsMultivariateTemplateConstruction2.sh script to generate an isotropic image by co-registering a set of multiplanar input images",
+    "description": "This gear implements out-of-the-box SynthSeg, the first convolutional neural network for segmentation of brain MRI scans of any contrast and resolution",
     "environment": {
         "CONDA_DIR": "/opt/conda",
         "FLYWHEEL": "/flywheel/v0",
@@ -121,7 +121,7 @@
     "inputs": {
         "api-key": {
             "base": "api-key",
-            "read-only": false
+            "read-only": true
         },
         "bidsignore": {
             "base": "file",
@@ -140,5 +140,5 @@
     "name": "synthseg",
     "source": "https://github.com/BBillot/SynthSeg ",
     "url": "https://surfer.nmr.mgh.harvard.edu/",
-    "version": "0.0.5-beta"
+    "version": "0.0.9"
 }

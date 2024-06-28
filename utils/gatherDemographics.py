@@ -3,6 +3,11 @@ import json
 import pandas as pd
 from datetime import datetime
 import re
+import logging
+import os
+
+# Setup basic logging
+logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
@@ -10,6 +15,8 @@ import re
 def get_demo():
 
     data = []
+    cleaned_string = 'NA'
+
     # Read config.json file
     p = open('/flywheel/v0/config.json')
     config = json.loads(p.read())
@@ -29,65 +36,99 @@ def get_demo():
     session_id = input_container.parents['session']
     session_container = fw.get(session_id)
     session = session_container.reload()
-    print("subject label: ", session.subject.label)
-    print("session label: ", session.label)
     session_label = session.label
+    print("session label: ", session.label)
+
+    # Get the subject id from the session id
+    # & extract the subject container
+    subject_id = session_container.parents['subject']
+    subject_container = fw.get(subject_id)
+    subject = subject_container.reload()
+    print("subject label: ", session.subject.label)
     subject_label = session.subject.label
+
+
+    # Specify the directory you want to list files from
+    directory_path = '/flywheel/v0/input/input'
+    # List all files in the specified directory
+    for filename in os.listdir(directory_path):
+        if os.path.isfile(os.path.join(directory_path, filename)):
+            filename_without_extension = filename.split('.')[0]
+            no_white_spaces = filename_without_extension.replace(" ", "")
+            no_white_spaces = filename.replace(" ", "")
+            cleaned_string = re.sub(r'[^a-zA-Z0-9]', '_', no_white_spaces)
+            cleaned_string = cleaned_string.rstrip('_') # remove trailing underscore
+
+    print("cleaned_string: ", cleaned_string)
 
     # -------------------  Get the subject age & matching template  -------------------  #
 
     # get the T2w axi dicom acquisition from the session
     # Should contain the DOB in the dicom header
     # Some projects may have DOB removed, but may have age at scan in the subject container
-
+    age = 'NA'
+    PatientSex = 'NA'
     for acq in session_container.acquisitions.iter():
         # print(acq.label)
         acq = acq.reload()
+
         if 'T2' in acq.label and 'AXI' in acq.label and 'Segmentation' not in acq.label: 
+            # pull out the acquisition label and clean
+            # no_white_spaces = acq.label.replace(" ", "")
+            # cleaned_string = re.sub(r'[^a-zA-Z0-9]', '_', no_white_spaces)
+            # cleaned_string = cleaned_string.rstrip('_') # remove trailing underscore
+
             for file_obj in acq.files: # get the files in the acquisition
                 # Screen file object information & download the desired file
                 if file_obj['type'] == 'dicom':
                     
                     dicom_header = fw._fw.get_acquisition_file_info(acq.id, file_obj.name)
+                    SeriesDate = dicom_header.info["SeriesDate"]
+
                     try:
-                        PatientSex = dicom_header.info["PatientSex"]
-                    except:
+                        print("searching for sex in dicom header..")
+                        PatientSex = dicom_header.info.get("PatientSex", None)
+                        if PatientSex is None:
+                            print("Not found in dicom header: searching subject metadata..")
+                            PatientSex = subject.sex
+                        else:
+                            PatientSex = "NA"
+                    except Exception as e:
                         PatientSex = "NA"
+                        logging.error("Error encountered: ", exc_info=True)
+
                         continue
-                    print("PatientSex: ", PatientSex)
 
-                    if 'PatientBirthDate' in dicom_header.info:
-                        # Get dates from dicom header
-                        dob = dicom_header.info['PatientBirthDate']
-                        seriesDate = dicom_header.info['SeriesDate']
-                        # Calculate age at scan
-                        age = (datetime.strptime(seriesDate, '%Y%m%d')) - (datetime.strptime(dob, '%Y%m%d'))
-                        age = age.days
-                    elif session.age != None: 
-                        # 
-                        print("Checking session infomation label...")
-                        # print("session.age: ", session.age) 
-                        age = int(session.age / 365 / 24 / 60 / 60) # This is in seconds
-                    elif 'PatientAge' in dicom_header.info:
-                        print("No DOB in dicom header or age in session info! Trying PatientAge from dicom...")
-                        age = dicom_header.info['PatientAge']
-                        # Need to drop the 'D' from the age and convert to int
-                        age = re.sub('\D', '', age)
-                        age = int(age)
-                    else:
-                        print("No age at scan in session info label! Ask PI...")
-                        age = 0
+                    try:
+                        logging.debug("Before processing the variable at line 57")
 
-                    if age == 0:
-                        print("No age at scan - skipping")
-                        exit(1)
-                    # Make sure age is positive
-                    elif age < 0:
-                        age = age * -1
-                    print("age: ", age)
+                        print("searching for DOB in dicom header..")
+                        PatientBirthDate = dicom_header.info.get("PatientBirthDate", None)
+                        if PatientBirthDate is None: # If not found in the primary source
+                            print("Not found in dicom header: searching for DOB in subject metadata..")
+                            datetime_obj = subject.date_of_birth
+                            # Parse the string into a datetime object
+                            PatientBirthDate = datetime_obj.strftime('%Y%m%d')
+                            print(PatientBirthDate)
+
+                        if PatientBirthDate is None:
+                            print("Not found in subject metadata: searching for DOB in session metadata..")
+                            age = int(session.age / 365 / 24 / 60 / 60) # This is in seconds
+                        if PatientBirthDate is not None:
+                            age = (datetime.strptime(SeriesDate, '%Y%m%d')) - (datetime.strptime(PatientBirthDate, '%Y%m%d'))
+                            age = age.days
+                        else:  # If not found in any source
+                            age = "NA"
+                            logging.debug("After processing the variable at line 57")
+
+                    except Exception as e:
+                        age = "NA"
+                        logging.error("Error encountered: ", exc_info=True)
+
+                        continue
     
     # assign values to lists. 
-    data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': PatientSex }]  
+    data = [{'subject': subject_label, 'session': session_label, 'age': age, 'sex': PatientSex, 'acquisition': cleaned_string}]  
     # Creates DataFrame.  
     demo = pd.DataFrame(data)
 
@@ -99,7 +140,8 @@ def get_demo():
     frames = [demo, vols]
     df = pd.concat(frames, axis=1)
 
-    outdir = ('/flywheel/v0/output/hyperfine_synthseg_volume.csv')
+    out_name = f"{cleaned_string}_synthseg_volumes.csv"
+    outdir = ('/flywheel/v0/output/' + out_name)
     df.to_csv(outdir)
 
     print("Demographics: ", subject_label, session_label, age, PatientSex)

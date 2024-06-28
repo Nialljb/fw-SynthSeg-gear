@@ -1,0 +1,34 @@
+# Use the latest Python 3 docker image
+FROM nialljb/fw-synthseg as base
+
+ENV HOME=/root/
+ENV FLYWHEEL="/flywheel/v0"
+WORKDIR $FLYWHEEL
+RUN mkdir -p $FLYWHEEL/input
+
+# Installing the current project (most likely to change, above layer can be cached)
+COPY ./ $FLYWHEEL/
+COPY license.txt /usr/local/freesurfer/.license
+COPY fslinstaller.py $FLYWHEEL/
+
+RUN yum update -y && \
+    yum install -y unzip gzip wget && \
+    yum install epel-release -y && \
+    yum install ImageMagick -y && \
+    yum clean all
+
+# # Use the script to install Miniconda
+# # Adjust the script's execution command according to its requirements
+RUN python3 /flywheel/v0/fslinstaller.py -d /opt/conda -o  
+
+# setup fs env
+ENV PATH /usr/local/freesurfer/bin:/usr/local/freesurfer/fsfast/bin:/usr/local/freesurfer/tktools:/usr/local/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+ENV FREESURFER_HOME /usr/local/freesurfer
+ENV FREESURFER /usr/local/freesurfer
+
+# Configure entrypoint
+RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
+    bash -c 'chmod +rx $FLYWHEEL/app/' && \
+    bash -c 'chmod +rx $FLYWHEEL/utils/render.sh' 
+ENTRYPOINT ["python3","/flywheel/v0/start.sh"] 
+# Flywheel reads the config command over this entrypoint

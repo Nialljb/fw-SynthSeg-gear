@@ -4,7 +4,7 @@
 #
 # Authorship: Niall bourke
 #
-
+# NOTE: Need to disable Rosetta to debug on M1 Macs
 ##############################################################################
 # Define directory names and containers
 

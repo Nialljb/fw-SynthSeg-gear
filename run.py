@@ -19,19 +19,18 @@ def main(context: GearToolkitContext) -> None:
     """Parses config and runs."""
     gear_inputs, gear_options, app_options = parse_config(context)
     
+    # Execute the main command
     command = "/flywheel/v0/app/main.sh"
     os.system(command)
 
+    # Add demographic data to the output
     print("concatenating demographics...")
     get_demo()
 
-    # #This is what it is all about
-    # exec_command(
-    # command,
-    # #dry_run=gear_options["dry-run"],
-    # shell=True,
-    # cont_output=True,
-    #     )
+    # Generate a QC image
+    qc_command = "/flywheel/v0/utils/render.sh"
+    os.system(qc_command)
+
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover

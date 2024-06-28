@@ -15,6 +15,7 @@
 !README.md
 !requirements.txt
 !license.txt
+!fslinstaller.py
 
 # Re-ignore pycache which might be inside package dir
 **/__pycache__

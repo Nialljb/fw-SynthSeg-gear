@@ -1,9 +1,12 @@
 # Changelog
 
+03/07/2024:
+- Added infant models to app which should be copied to FreeSurfer directory in Dockerfile with the aim of running by setting the `model` parameter to `infant`. Models are provided by the SynthSeg team trained on Hyperfine 3-18 month old data.
+
 28/06/2024:
 - CentOS 8 is EOL, updated to CentOS 9 (expected EOL 2027)
 - Correction to output acquisition label
-s
+
 26/06/2024:
 - demographics updated conditions for gathering sex/age to be more robust.
   - first checking dicom headers, then metadata

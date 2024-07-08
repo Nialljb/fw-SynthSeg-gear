@@ -2,6 +2,8 @@
 
 08/07/2024:
 - clean up to make output more complient with BIDS
+- add in infant flag to output
+  * input acquisition name is taken. For BIDs need to control sub and ses labels from the recon step
 
 05/07/2024:
 - Something changed on the Flywheel Toolkit side that broke fw.get so parent information cannot be retrieved from the file ID extracted in the config file. A workaround was implemented to extract the parent ID using the context object.

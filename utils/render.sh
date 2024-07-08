@@ -9,22 +9,24 @@ FSLDIR=/opt/conda
 . $FSLDIR/etc/fslconf/fsl.sh
 echo "FSLOUTPUTTYPE set to $FSLOUTPUTTYPE"
 
-
 # Define paths to your images & pass in the subject, session, and acquisition labels
 FLYWHEEL_BASE=/flywheel/v0
 INPUT_DIR=$FLYWHEEL_BASE/input/
 OUTPUT_DIR=$FLYWHEEL_BASE/output
 WORK_DIR=$FLYWHEEL_BASE/work
+CONFIG_FILE=$FLYWHEEL_BASE/config.json
 sub=$1
 ses=$2
 acq=$3
+infant=$4
 
 # Gather the structural and segmentation files
 structural_file=`find $INPUT_DIR -iname '*.nii' -o -iname '*.nii.gz'`
 seg_file=`find $OUTPUT_DIR -iname '*.nii' -o -iname '*.nii.gz'`
 
 # Get segmentation in native space
-/opt/conda/bin/flirt -in $seg_file -ref $structural_file -out $OUTPUT_DIR/sub-${sub}_ses-${ses}_acq-${acq}_segmentation_native.nii.gz -applyxfm -usesqform
+/opt/conda/bin/flirt -in $seg_file -ref $structural_file -out $OUTPUT_DIR/${acq}_segmentation_native.nii.gz -applyxfm -usesqform
+# sub-${sub}_ses-${ses}_acq-
 
 # Render the images
 /opt/conda/bin/slicer $structural_file $OUTPUT_DIR/segmentation_native.nii.gz -s 2 -x 0.4 ${WORK_DIR}/slice1.png -x 0.5 ${WORK_DIR}/slice2.png -x 0.6 ${WORK_DIR}/slice3.png -y 0.4 ${WORK_DIR}/slice4.png -y 0.5 ${WORK_DIR}/slice5.png -y 0.6 ${WORK_DIR}/slice6.png -z 0.4 ${WORK_DIR}/slice7.png -z 0.5 ${WORK_DIR}/slice8.png -z 0.6 ${WORK_DIR}/slice9.png
@@ -33,16 +35,17 @@ convert ${WORK_DIR}/slice4.png ${WORK_DIR}/slice5.png ${WORK_DIR}/slice6.png +ap
 convert ${WORK_DIR}/slice1.png ${WORK_DIR}/slice2.png ${WORK_DIR}/slice3.png +append ${WORK_DIR}/sag.png
 
 # Combine the images into a single image
-convert ${WORK_DIR}/axi.png ${WORK_DIR}/cor.png ${WORK_DIR}/sag.png  -append ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_segmentation_QC.png
+convert ${WORK_DIR}/axi.png ${WORK_DIR}/cor.png ${WORK_DIR}/sag.png  -append ${OUTPUT_DIR}/${acq}_segmentation_QC.png
+# sub-${sub}_ses-${ses}_acq-
 
 # Clean up
 # While here lets relabel the qc.csv file
-mv ${OUTPUT_DIR}/qc.csv ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_qc.csv
-
+mv ${OUTPUT_DIR}/qc.csv ${OUTPUT_DIR}/${acq}_${infant}qc.csv
+# sub-${sub}_ses-${ses}_acq-
 
 # If there is a file containing 'synthseg_volumes.csv', then remove vol.csv
-
-if [ -f ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_synthseg_volumes.csv ]; then
+# sub-${sub}_ses-${ses}_acq-
+if [ -f ${OUTPUT_DIR}/${acq}_synthseg_volumes.csv ]; then
     rm ${OUTPUT_DIR}/vol.csv
 fi
 

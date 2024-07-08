@@ -15,11 +15,7 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 
 def get_demo(context):
 
-
     input_container = context.client.get_analysis(context.destination["id"])
-    
-    
-    
     proj_id = input_container.parents["project"]
     project_container = context.client.get(proj_id)
     project_label = project_container.label
@@ -40,6 +36,13 @@ def get_demo(context):
     session = session_container.reload()
     session_label = session.label
     print("session label: ", session.label)
+
+    # get infant option from config.json
+    infant_status = context.config.get("infant")
+    if infant_status is True:
+        infant = 'infant_'
+    else:
+        infant = ''
 
     data = []
     cleaned_string = 'NA'
@@ -170,14 +173,15 @@ def get_demo(context):
     frames = [demo, vols]
     df = pd.concat(frames, axis=1)
 
-    out_name = f"sub-{subject_label}_ses-{session_label}_acq-{cleaned_string}_synthseg_volumes.csv"
+    # sub-{subject_label}_ses-{session_label}_acq-
+    out_name = f"{cleaned_string}_synthseg_{infant}volumes.csv"
     outdir = ('/flywheel/v0/output/' + out_name)
     df.to_csv(outdir)
 
     # Run the render script to generate the QC image 
 
     # Construct the command to run your bash script with variables as arguments
-    qc_command = f"/flywheel/v0/utils/render.sh '{subject_label}' '{session_label}' '{cleaned_string}'"
+    qc_command = f"/flywheel/v0/utils/render.sh '{subject_label}' '{session_label}' '{cleaned_string}' '{infant}'"
 
     # Execute the bash script
     subprocess.run(qc_command, shell=True)

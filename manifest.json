@@ -22,6 +22,11 @@
       "default": true,
       "description": "(optional) Output CSV file with volumes for all structures and subjects.",
       "type": "boolean"
+    },
+    "infant": {
+      "default": false,
+      "description": "BETA: Use infant model. This will override the default model with an infant model trained on UCT data.",
+      "type": "boolean"
     }
   },
   "custom": {
@@ -47,7 +52,7 @@
     },
     "gear-builder": {
       "category": "analysis",
-      "image": "flywheel/synthseg:0.1.9"
+      "image": "flywheel/synthseg:0.2.4"
     },
     "kcl-app-binary": "app/main.sh",
     "kcl-app-modalities": [
@@ -73,7 +78,7 @@
     "FLYWHEEL": "/flywheel/v0",
     "GPG_KEY": "E3FF2839C048B25C084DEBE9B26995E310250568",
     "LANG": "C.UTF-8",
-    "PATH": "/opt/conda/bin:/usr/local/freesurfer/bin:/usr/local/freesurfer/fsfast/bin:/usr/local/freesurfer/tktools:/usr/local/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+    "PATH": "/flywheel/v0/app/infant:/opt/conda/bin:/usr/local/freesurfer/bin:/usr/local/freesurfer/fsfast/bin:/usr/local/freesurfer/tktools:/usr/local/freesurfer/mni/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
     "PYTHON_GET_PIP_SHA256": "fa6f3fb93cce234cd4e8dd2beb54a51ab9c247653b52855a48dd44e6b21ff28b",
     "PYTHON_GET_PIP_URL": "https://github.com/pypa/get-pip/raw/c20b0cfd643cd4a19246ccf204e2997af70f6b21/public/get-pip.py",
     "PYTHON_PIP_VERSION": "21.2.3",
@@ -103,5 +108,5 @@
   "name": "synthseg",
   "source": "https://github.com/BBillot/SynthSeg ",
   "url": "https://surfer.nmr.mgh.harvard.edu/",
-  "version": "0.1.9"
+  "version": "0.2.4"
 }

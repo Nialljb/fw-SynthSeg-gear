@@ -25,11 +25,14 @@ RUN pip3 install flywheel-gear-toolkit && \
 
 # setup infant models 
 RUN cp ./app/infant/models/* /usr/local/freesurfer/models/
+ENV PATH="$FLYWHEEL/app/infant:${PATH}"
 
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
     bash -c 'chmod +rx $FLYWHEEL/app/' && \
     bash -c 'chmod +rx $FLYWHEEL/utils/render.sh' && \
-    bash -c 'chmod +rx /usr/local/freesurfer/models/*' 
+    bash -c 'chmod +rx /usr/local/freesurfer/models/*' && \
+    bash -c 'chmod +rx $FLYWHEEL/app/infant/*'  
+
 ENTRYPOINT ["python3","/flywheel/v0/start.sh"] 
 # Flywheel reads the config command over this entrypoint

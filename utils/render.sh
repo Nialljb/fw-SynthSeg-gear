@@ -1,34 +1,55 @@
 #!/bin/bash
 
+# This script will render the structural and segmentation images in three planes (axial, coronal, sagittal) and combine them into a single image.
+# The script uses FSL's slicer command to render the images.
+
+
 # Source FSL
 FSLDIR=/opt/conda
 . $FSLDIR/etc/fslconf/fsl.sh
 echo "FSLOUTPUTTYPE set to $FSLOUTPUTTYPE"
 
 
-# Render images using slicer
-# This script will render the structural and segmentation images in three planes (axial, coronal, sagittal) and combine them into a single image.
+# Define paths to your images & pass in the subject, session, and acquisition labels
 FLYWHEEL_BASE=/flywheel/v0
 INPUT_DIR=$FLYWHEEL_BASE/input/
 OUTPUT_DIR=$FLYWHEEL_BASE/output
-# echo $OUTPUT_DIR
-
 WORK_DIR=$FLYWHEEL_BASE/work
+sub=$1
+ses=$2
+acq=$3
 
+# Gather the structural and segmentation files
 structural_file=`find $INPUT_DIR -iname '*.nii' -o -iname '*.nii.gz'`
 seg_file=`find $OUTPUT_DIR -iname '*.nii' -o -iname '*.nii.gz'`
-# echo $seg_file
 
+# Get segmentation in native space
+/opt/conda/bin/flirt -in $seg_file -ref $structural_file -out $OUTPUT_DIR/sub-${sub}_ses-${ses}_acq-${acq}_segmentation_native.nii.gz -applyxfm -usesqform
 
-/opt/conda/bin/flirt -in $seg_file -ref $structural_file -out $OUTPUT_DIR/segmentation_native.nii.gz -applyxfm -usesqform
-
-
+# Render the images
 /opt/conda/bin/slicer $structural_file $OUTPUT_DIR/segmentation_native.nii.gz -s 2 -x 0.4 ${WORK_DIR}/slice1.png -x 0.5 ${WORK_DIR}/slice2.png -x 0.6 ${WORK_DIR}/slice3.png -y 0.4 ${WORK_DIR}/slice4.png -y 0.5 ${WORK_DIR}/slice5.png -y 0.6 ${WORK_DIR}/slice6.png -z 0.4 ${WORK_DIR}/slice7.png -z 0.5 ${WORK_DIR}/slice8.png -z 0.6 ${WORK_DIR}/slice9.png
 convert ${WORK_DIR}/slice7.png ${WORK_DIR}/slice8.png ${WORK_DIR}/slice9.png +append ${WORK_DIR}/axi.png
 convert ${WORK_DIR}/slice4.png ${WORK_DIR}/slice5.png ${WORK_DIR}/slice6.png +append ${WORK_DIR}/cor.png
 convert ${WORK_DIR}/slice1.png ${WORK_DIR}/slice2.png ${WORK_DIR}/slice3.png +append ${WORK_DIR}/sag.png
 
-convert ${WORK_DIR}/axi.png ${WORK_DIR}/cor.png ${WORK_DIR}/sag.png  -append ${OUTPUT_DIR}/segmentation_QC.png
+# Combine the images into a single image
+convert ${WORK_DIR}/axi.png ${WORK_DIR}/cor.png ${WORK_DIR}/sag.png  -append ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_segmentation_QC.png
+
+# Clean up
+# While here lets relabel the qc.csv file
+mv ${OUTPUT_DIR}/qc.csv ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_qc.csv
+
+
+# If there is a file containing 'synthseg_volumes.csv', then remove vol.csv
+
+if [ -f ${OUTPUT_DIR}/sub-${sub}_ses-${ses}_acq-${acq}_synthseg_volumes.csv ]; then
+    rm ${OUTPUT_DIR}/vol.csv
+fi
+
+
+
+
+
 
 # ------------------------------------------------------ #
 # Render images using FSLeyes

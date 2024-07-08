@@ -1,8 +1,8 @@
 #!/usr/bin/env bash 
 
 GEAR=fw-SynthSeg-gear
-IMAGE=flywheel/synthseg:0.1.8
-LOG=synthseg-0.1.8-667f3a4524ed280d35c49c76
+IMAGE=flywheel/synthseg:0.2.1
+LOG=synthseg-0.2.1-6687171c02d8df0cb79aba9f
 
 # Command:
 docker run -it --rm --entrypoint bash\

@@ -13,6 +13,7 @@ INPUT_DIR=$FLYWHEEL_BASE/input/
 OUTPUT_DIR=$FLYWHEEL_BASE/output
 CONFIG_FILE=$FLYWHEEL_BASE/config.json
 CONTAINER='[flywheel/mri-synthseg]'
+nthreads=8
 
 source /usr/local/freesurfer/SetUpFreeSurfer.sh
 ##############################################################################
@@ -38,6 +39,7 @@ config_parc="$(parse_config 'parc')"
 config_vol="$(parse_config 'vol')"
 config_qc="$(parse_config 'QC')"
 config_rob="$(parse_config 'robust')"
+config_infant="$(parse_config 'infant')"
 
 echo "Parcelation is ${config_parc}"
 echo "Save volume output is $config_vol"
@@ -79,10 +81,6 @@ fi
 # Set initial exit status
 mri_synthseg_exit_status=0
 
-# Set base output_file name
-output_file=$OUTPUT_DIR/"$base_filename"'_synthseg'
-echo "output_file is $output_file"
-
 # Check if user wanted parcelation output
 if [[ $config_parc == 'true' ]]; then
   parc='--parc'
@@ -97,12 +95,34 @@ if [[ $config_rob == 'true' ]]; then
   robust='--robust'
 fi
 
+##############################################################################
+
 # Run synthseg with options
 if [[ -e $input_file ]]; then
-  echo "Running synthseg..."
-  mri_synthseg --i $input_file --o $OUTPUT_DIR $parc $vol $qc $robust
-  mri_synthseg_exit_status=$?
+  if [[ $config_infant == 'true' ]]; then
+    echo "Running mri_synthseg_infant..."
+    # Set base output_file name
+    output_file=$OUTPUT_DIR/"$base_filename"'_synthseg_infant'
+    echo "output_file is $output_file"
+    echo "Note: --robust, --parc options are not available for mri_synthseg_infant"
+    fspython /flywheel/v0/app/infant/mri_synthseg_infant --i $input_file --o $output_file $vol $qc --threads $nthreads
+    mri_synthseg_exit_status=$?
+  else
+    echo "Running mri_synthseg..."
+    # Set base output_file name
+    output_file=$OUTPUT_DIR/"$base_filename"'_synthseg'
+    echo "output_file is $output_file"
+    mri_synthseg --i $input_file --o $output_file $parc $vol $qc $robust --threads $nthreads
+    mri_synthseg_exit_status=$?
+  fi
 fi
+
+# # Run synthseg with options
+# if [[ -e $input_file ]]; then
+#   echo "Running synthseg..."
+#   mri_synthseg --i $input_file --o $OUTPUT_DIR $parc $vol $qc $robust
+#   mri_synthseg_exit_status=$?
+# fi
 
 ##############################################################################
 # Handle Exit status

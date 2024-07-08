@@ -5,6 +5,7 @@ from datetime import datetime
 import re
 import logging
 import os
+import subprocess
 
 # Setup basic logging
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -12,7 +13,33 @@ logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %
 #  Module to identify the correct template use for the subject VBM analysis based on age at scan
 #  Need to get subject identifiers from inside running container in order to find the correct template from the SDK
 
-def get_demo():
+def get_demo(context):
+
+
+    input_container = context.client.get_analysis(context.destination["id"])
+    
+    
+    
+    proj_id = input_container.parents["project"]
+    project_container = context.client.get(proj_id)
+    project_label = project_container.label
+    print("project label: ", project_label)
+
+    # Get the subject id from the session id
+    # & extract the subject container
+    subject_id = input_container.parents['subject']
+    subject_container = context.client.get(subject_id)
+    subject = subject_container.reload()
+    print("subject label: ", subject.label)
+    subject_label = subject.label
+
+    # Get the session id from the input file id
+    # & extract the session container
+    session_id = input_container.parents['session']
+    session_container = context.client.get(session_id)
+    session = session_container.reload()
+    session_label = session.label
+    print("session label: ", session.label)
 
     data = []
     cleaned_string = 'NA'
@@ -24,28 +51,31 @@ def get_demo():
     # Read API key in config file
     api_key = (config['inputs']['api-key']['key'])
     fw = flywheel.Client(api_key=api_key)
-    gear = 'synthseg'
+    # gear = 'synthseg'
     
-    # Get the input file id
-    input_file_id = (config['inputs']['input']['hierarchy']['id'])
-    print("input_file_id is : ", input_file_id)
-    input_container = fw.get(input_file_id)
 
-    # Get the session id from the input file id
-    # & extract the session container
-    session_id = input_container.parents['session']
-    session_container = fw.get(session_id)
-    session = session_container.reload()
-    session_label = session.label
-    print("session label: ", session.label)
+    # NOTE: This is the old way of getting the session and subject labels. This has stopped working for some reason.
 
-    # Get the subject id from the session id
-    # & extract the subject container
-    subject_id = session_container.parents['subject']
-    subject_container = fw.get(subject_id)
-    subject = subject_container.reload()
-    print("subject label: ", session.subject.label)
-    subject_label = session.subject.label
+    # # Get the input file id
+    # input_file_id = (config['inputs']['input']['hierarchy']['id'])
+    # print("input_file_id is : ", input_file_id)
+    # input_container = fw.get(input_file_id)
+
+    # # Get the session id from the input file id
+    # # & extract the session container
+    # session_id = input_container.parents['session']
+    # session_container = fw.get(session_id)
+    # session = session_container.reload()
+    # session_label = session.label
+    # print("session label: ", session.label)
+
+    # # Get the subject id from the session id
+    # # & extract the subject container
+    # subject_id = session_container.parents['subject']
+    # subject_container = fw.get(subject_id)
+    # subject = subject_container.reload()
+    # print("subject label: ", session.subject.label)
+    # subject_label = session.subject.label
 
 
     # Specify the directory you want to list files from
@@ -55,7 +85,7 @@ def get_demo():
         if os.path.isfile(os.path.join(directory_path, filename)):
             filename_without_extension = filename.split('.')[0]
             no_white_spaces = filename_without_extension.replace(" ", "")
-            no_white_spaces = filename.replace(" ", "")
+            # no_white_spaces = filename.replace(" ", "")
             cleaned_string = re.sub(r'[^a-zA-Z0-9]', '_', no_white_spaces)
             cleaned_string = cleaned_string.rstrip('_') # remove trailing underscore
 
@@ -140,13 +170,17 @@ def get_demo():
     frames = [demo, vols]
     df = pd.concat(frames, axis=1)
 
-    out_name = f"{cleaned_string}_synthseg_volumes.csv"
+    out_name = f"sub-{subject_label}_ses-{session_label}_acq-{cleaned_string}_synthseg_volumes.csv"
     outdir = ('/flywheel/v0/output/' + out_name)
     df.to_csv(outdir)
 
+    # Run the render script to generate the QC image 
+
+    # Construct the command to run your bash script with variables as arguments
+    qc_command = f"/flywheel/v0/utils/render.sh '{subject_label}' '{session_label}' '{cleaned_string}'"
+
+    # Execute the bash script
+    subprocess.run(qc_command, shell=True)
+
     print("Demographics: ", subject_label, session_label, age, PatientSex)
     return subject_label, session_label, age, PatientSex
-
-
-
-

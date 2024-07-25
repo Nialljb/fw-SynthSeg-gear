@@ -25,7 +25,7 @@
     },
     "infant": {
       "default": false,
-      "description": "BETA: Use infant model. This will override the default model with an infant model trained on UCT data.",
+      "description": "Use infant model. This will override the default model with an infant model trained on UCT data.",
       "type": "boolean"
     }
   },
@@ -52,7 +52,7 @@
     },
     "gear-builder": {
       "category": "analysis",
-      "image": "flywheel/synthseg:0.2.6"
+      "image": "flywheel/synthseg:0.2.7"
     },
     "kcl-app-binary": "app/main.sh",
     "kcl-app-modalities": [
@@ -72,7 +72,7 @@
       "non-commercial-use-only": false
     }
   },
-  "description": "This gear implements out-of-the-box SynthSeg, the first convolutional neural network for segmentation of brain MRI scans of any contrast and resolution. Additional infant models have been provided by Henry Tregidgo. These models are based on the original SynthSeg model, but have been trained on infant data from UCT.",
+  "description": "This gear implements out-of-the-box SynthSeg, the first convolutional neural network for segmentation of brain MRI scans of any contrast and resolution. Additional infant models have been provided by Henry Tregidgo. These models are based on the original SynthSeg model, but have been trained on infant data from UCT. NOTE: earlier versions may have errors in 'ctx' output",
   "environment": {
     "CONDA_DIR": "/opt/conda",
     "FLYWHEEL": "/flywheel/v0",
@@ -108,5 +108,5 @@
   "name": "synthseg",
   "source": "https://github.com/BBillot/SynthSeg ",
   "url": "https://surfer.nmr.mgh.harvard.edu/",
-  "version": "0.2.6"
+  "version": "0.2.7"
 }

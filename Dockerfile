@@ -25,6 +25,11 @@ RUN pip3 install flywheel-gear-toolkit && \
 
 # setup infant models 
 RUN cp ./app/infant/models/* /usr/local/freesurfer/models/
+# copy ctx fix to freesurfer python scripts
+# RUN mv /usr/local/freesurfer/python/scripts/mri_synthseg.py /usr/local/freesurfer/python/scripts/DEPRICATED_mri_synthseg.py
+RUN cp ./app/infant/mri_synthseg_fix.py /usr/local/freesurfer/python/scripts/mri_synthseg.py
+
+
 ENV PATH="$FLYWHEEL/app/infant:${PATH}"
 
 # Configure entrypoint

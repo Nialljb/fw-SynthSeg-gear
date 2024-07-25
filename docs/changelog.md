@@ -1,5 +1,8 @@
 # Changelog
 
+25/07/2024:
+A bug was found in the original SynthSeg toolbox which caused estimations to correct for WM volume not cortical volume. A push is made to the SynthSeg repository to fix this issue. However it is not clear when this will be implemented within the FreeSurfer distribution. In the meantime, I have manually patched the SynthSeg code in the Dockerfile.
+
 08/07/2024:
 - clean up to make output more complient with BIDS
 - add in infant flag to output

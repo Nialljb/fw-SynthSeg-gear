@@ -17,9 +17,8 @@ def parse_config(
 
     # Gear Inputs
     # Changed to call directly (user input)
-    gear_inputs = {
-        "axi": gear_context.get_input_path("input")
-    }
+    gear_inputs =  gear_context.get_input_file_object("input")
+
 
 
     # ##   Gear config   ## #
@@ -46,11 +45,11 @@ def parse_config(
     https://github.com/ANTsX/ANTs/blob/master/Scripts/antsMultivariateTemplateConstruction2.sh 
 
     """
-
     app_options_keys = [
     "parc",
     "vol",
-    "QC" 
+    "QC",
+    "infant" 
 ]
     # keys here should be pulled from config (file generated after user selections on platform).
     # These may still be manifest defaults but allows user input

@@ -13,4 +13,5 @@ config.json
 run.sh
 
 # large project files
-app/templates%   
+app/templates%  
+app/infant 

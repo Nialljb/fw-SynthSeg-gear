@@ -353,20 +353,20 @@ class GearToolkitContext:
         """
         return self.config_json["inputs"].get(name)
 
-    # def get_input_file_object(self, name):
-    #     """Get the specified input file object from config.json
-    #     Args:
-    #         name (str): The name of the input.
+    def get_input_file_object(self, name):
+        """Get the specified input file object from config.json
+        Args:
+            name (str): The name of the input.
 
-    #     Returns:
-    #         dict: The input dictionary, or None if not found.
-    #     """
-    #     inp = self.get_input(name)
-    #     if inp is None:
-    #         return None
-    #     if inp["base"] != "file":
-    #         raise ValueError(f"The specified input {name} is not a file")
-    #     return inp["object"]
+        Returns:
+            dict: The input dictionary, or None if not found.
+        """
+        inp = self.get_input(name)
+        if inp is None:
+            return None
+        if inp["base"] != "file":
+            raise ValueError(f"The specified input {name} is not a file")
+        return inp["object"]
 
     # def get_input_file_object_value(self, name, key):
     #     """Get the value of the input file metadata from config.json.

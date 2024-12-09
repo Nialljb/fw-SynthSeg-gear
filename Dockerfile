@@ -23,9 +23,20 @@ RUN pip3 install flywheel-gear-toolkit && \
     pip3 install jsonschema && \
     pip3 install pandas 
 
+# setup infant models 
+RUN cp ./app/infant/models/* /usr/local/freesurfer/models/
+# copy ctx fix to freesurfer python scripts
+RUN mv /usr/local/freesurfer/python/scripts/mri_synthseg /usr/local/freesurfer/python/scripts/DEPRICATED_mri_synthseg
+RUN cp ./app/infant/mri_synthseg_fix.py /usr/local/freesurfer/python/scripts/mri_synthseg
+
+ENV PATH="$FLYWHEEL/app/infant:${PATH}"
+
 # Configure entrypoint
 RUN bash -c 'chmod +rx $FLYWHEEL/run.py' && \
     bash -c 'chmod +rx $FLYWHEEL/app/' && \
-    bash -c 'chmod +rx $FLYWHEEL/utils/render.sh' 
+    bash -c 'chmod +rx $FLYWHEEL/utils/render.sh' && \
+    bash -c 'chmod +rx /usr/local/freesurfer/models/*' && \
+    bash -c 'chmod +rx $FLYWHEEL/app/infant/*'  
+
 ENTRYPOINT ["python3","/flywheel/v0/start.sh"] 
 # Flywheel reads the config command over this entrypoint

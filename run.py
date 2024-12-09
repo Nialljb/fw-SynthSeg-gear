@@ -1,7 +1,14 @@
 #!/usr/bin/env python
-"""The run script."""
-import logging
+import sys
 import os
+
+# Add top-level package directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+# Verify sys.path
+print("sys.path:", sys.path)
+
+import logging
 
 # import flywheel functions
 from flywheel_gear_toolkit import GearToolkitContext
@@ -14,7 +21,6 @@ from utils.gatherDemographics import get_demo
 # module.
 
 log = logging.getLogger(__name__)
-
 def main(context: GearToolkitContext) -> None:
     """Parses config and runs."""
     gear_inputs, gear_options, app_options = parse_config(context)
@@ -25,12 +31,12 @@ def main(context: GearToolkitContext) -> None:
 
     # Add demographic data to the output
     print("concatenating demographics...")
-    get_demo()
+    get_demo(context)
 
-    # Generate a QC image
-    qc_command = "/flywheel/v0/utils/render.sh"
-    os.system(qc_command)
-
+    # # Generate a QC image
+    # qc_command = "/flywheel/v0/utils/render.sh"
+    # os.system(qc_command)
+    # NOTE: running from from demo instead to pass in the context
 
 # Only execute if file is run as main, not when imported by another module
 if __name__ == "__main__":  # pragma: no cover
